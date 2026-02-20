@@ -9,6 +9,7 @@
   ],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 20,
+  "prCreation": "immediate",
   "separateMajorMinor": true,
   "rangeStrategy": "replace",
   "labels": [
