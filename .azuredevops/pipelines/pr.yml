@@ -1,0 +1,33 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: sdk
+      version: 8.0.x
+
+  - script: |
+      chmod +x scripts/check-eol-tfm.sh
+      scripts/check-eol-tfm.sh
+    displayName: Quality gate: block EOL TFMs
+
+  - script: |
+      dotnet restore
+      dotnet test --configuration Release --logger "trx" --results-directory "$(System.DefaultWorkingDirectory)/TestResults"
+    displayName: Build & test
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: "**/*.trx"
+      searchFolder: "$(System.DefaultWorkingDirectory)/TestResults"
+      testRunTitle: PR validation

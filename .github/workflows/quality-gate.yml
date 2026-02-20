@@ -1,0 +1,33 @@
+name: .NET Quality Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Quality gate: block EOL TFMs
+        run: |
+          chmod +x scripts/check-eol-tfm.sh
+          scripts/check-eol-tfm.sh
+
+      - name: Build & test
+        run: |
+          dotnet restore
+          dotnet test --configuration Release
